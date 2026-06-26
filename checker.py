@@ -101,7 +101,7 @@ def main():
         slot_found_time = current_time_str
 
     # Send hourly summary at the top of every hour (minute 0 or 1)
-    is_hourly_summary = (current_minute <= 1 and checks_this_hour == 1)
+    is_hourly_summary = True
 
     if is_hourly_summary:
         hour_label = now.strftime("%d %b %Y %H:00 UTC")
