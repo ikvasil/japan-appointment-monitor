@@ -2,7 +2,7 @@ name: Japan Embassy Slot Monitor
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/15 * * * *'   # Every 15 minutes
   workflow_dispatch:
 
 jobs:
@@ -27,6 +27,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_MINUTES: ${{ github.event.schedule }}
         run: python checker.py
 
       - name: Save state back to repo
