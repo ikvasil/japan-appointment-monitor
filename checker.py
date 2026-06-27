@@ -48,9 +48,9 @@ def load_last_state():
             return json.load(f)
     return {
         "available_dates": [],
-        "checks_this_hour": 0,
-        "last_hour": -1,
-        "slot_found_this_hour": False,
+        "last_summary_hour": -1,
+        "checks_since_summary": 0,
+        "slot_found_since_summary": False,
         "slot_found_time": None
     }
 
@@ -61,8 +61,7 @@ def save_state(state):
 def main():
     now = datetime.now(timezone.utc)
     current_hour = now.hour
-    current_minute = now.minute
-    current_time_str = now.strftime("%H:%M UTC")
+    current_time_str = now.strftime("%d %b %Y %H:%M UTC")
 
     current_slots = check_slots()
 
@@ -71,24 +70,17 @@ def main():
 
     last_state = load_last_state()
     last_slots = last_state.get("available_dates", [])
-    last_hour = last_state.get("last_hour", -1)
-    checks_this_hour = last_state.get("checks_this_hour", 0)
-    slot_found_this_hour = last_state.get("slot_found_this_hour", False)
+    last_summary_hour = last_state.get("last_summary_hour", -1)
+    checks_since_summary = last_state.get("checks_since_summary", 0)
+    slot_found_since_summary = last_state.get("slot_found_since_summary", False)
     slot_found_time = last_state.get("slot_found_time", None)
 
-    # Reset counter if we are in a new hour
-    if current_hour != last_hour:
-        checks_this_hour = 0
-        slot_found_this_hour = False
-        slot_found_time = None
+    checks_since_summary += 1
 
-    checks_this_hour += 1
-
-    # Check for new slots
+    # Check for new slots — send INSTANT alert
     new_slots = [d for d in current_slots if d not in last_slots]
 
     if new_slots:
-        # INSTANT ALERT
         message = (
             "🚨 <b>JAPAN EMBASSY APPOINTMENT ALERT</b> 🚨\n\n"
             "✅ New slots just opened:\n"
@@ -97,45 +89,49 @@ def main():
             message += f"  📅 {date}\n"
         message += f"\n👉 Book now: {CALENDAR_URL}"
         send_telegram(message)
-        slot_found_this_hour = True
+        slot_found_since_summary = True
         slot_found_time = current_time_str
 
-    # Send hourly summary at the top of every hour (minute 0 or 1)
-    is_hourly_summary = (current_minute <= 1 and checks_this_hour == 1)
-
-    if is_hourly_summary:
+    # Send hourly summary once per hour
+    if current_hour != last_summary_hour:
         hour_label = now.strftime("%d %b %Y %H:00 UTC")
 
-        if slot_found_this_hour:
+        if slot_found_since_summary:
             summary = (
                 f"📊 <b>Hourly Summary — {hour_label}</b>\n\n"
-                f"✅ SLOT WAS FOUND at {slot_found_time}!\n"
-                f"Checks completed: {checks_this_hour}\n"
+                f"🚨 SLOT WAS FOUND at {slot_found_time}!\n"
+                f"Checks this hour: {checks_since_summary}\n"
                 f"Monitor is running normally ✅"
             )
         elif current_slots:
             summary = (
                 f"📊 <b>Hourly Summary — {hour_label}</b>\n\n"
-                f"✅ Slots currently available!\n"
+                f"✅ Slots currently available:\n"
             )
             for date in current_slots:
                 summary += f"  📅 {date}\n"
-            summary += f"\nChecks completed: {checks_this_hour}\nMonitor is running normally ✅"
+            summary += f"\nChecks this hour: {checks_since_summary}\nMonitor is running normally ✅"
         else:
             summary = (
                 f"📊 <b>Hourly Summary — {hour_label}</b>\n\n"
                 f"🔴 No slots available\n"
-                f"Checks completed: {checks_this_hour}\n"
+                f"Checks this hour: {checks_since_summary}\n"
                 f"Monitor is running normally ✅"
             )
+
         send_telegram(summary)
 
-    # Save updated state
+        # Reset hourly counters
+        last_summary_hour = current_hour
+        checks_since_summary = 0
+        slot_found_since_summary = False
+        slot_found_time = None
+
     save_state({
         "available_dates": current_slots,
-        "checks_this_hour": checks_this_hour,
-        "last_hour": current_hour,
-        "slot_found_this_hour": slot_found_this_hour,
+        "last_summary_hour": last_summary_hour,
+        "checks_since_summary": checks_since_summary,
+        "slot_found_since_summary": slot_found_since_summary,
         "slot_found_time": slot_found_time
     })
 
