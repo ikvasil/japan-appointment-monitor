@@ -2,7 +2,7 @@ name: Japan Embassy Slot Monitor
 
 on:
   schedule:
-    - cron: '*/15 * * * *'   # Every 15 minutes
+    - cron: '*/5 * * * *'   # Every 15 minutes
   workflow_dispatch:
 
 jobs:
