@@ -108,6 +108,11 @@ def main():
         s["checks"] = 0
         s["found"] = False
         s["found_time"] = None
+    else:
+        if slots:
+            telegram("Check " + time_str + "\n\nSlots available: " + ", ".join(slots) + "\nRunning OK")
+        else:
+            telegram("Check " + time_str + "\n\nNo slots available\nRunning OK")
     s["dates"] = slots
     save(s)
 
