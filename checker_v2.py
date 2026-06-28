@@ -95,7 +95,7 @@ def main():
         telegram(msg)
         s["found"] = True
         s["found_time"] = time_str
-   if hour != s["hour"]:
+    if hour != s["hour"]:
         hl = now.strftime("%d %b %Y %H:00 UTC")
         if s["found"]:
             out = "Hourly Summary " + hl + "\n\nSLOT FOUND at " + str(s["found_time"]) + "!\nChecks: " + str(s["checks"]) + "\nRunning OK"
