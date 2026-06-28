@@ -1,7 +1,9 @@
 import os, json, requests
 from pathlib import Path
 from bs4 import BeautifulSoup
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+
+QATAR_TZ = timezone(timedelta(hours=3))
 
 env_path = Path(__file__).parent / ".env"
 if env_path.exists():
@@ -35,7 +37,7 @@ def get_all_slots():
         if not csrf:
             telegram("Monitor error: Could not get CSRF token")
             return None
-        now = datetime.now(timezone.utc)
+        now = datetime.now(QATAR_TZ)
         all_slots = []
         for i in range(3):
             month = now.month + i
