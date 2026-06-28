@@ -95,7 +95,7 @@ def main():
         telegram(msg)
         s["found"] = True
         s["found_time"] = time_str
-    if hour != s["hour"]:
+   if hour != s["hour"]:
         hl = now.strftime("%d %b %Y %H:00 UTC")
         if s["found"]:
             out = "Hourly Summary " + hl + "\n\nSLOT FOUND at " + str(s["found_time"]) + "!\nChecks: " + str(s["checks"]) + "\nRunning OK"
@@ -108,11 +108,6 @@ def main():
         s["checks"] = 0
         s["found"] = False
         s["found_time"] = None
-    else:
-        if slots:
-            telegram("Check " + time_str + "\n\nSlots available: " + ", ".join(slots) + "\nRunning OK")
-        else:
-            telegram("Check " + time_str + "\n\nNo slots available\nRunning OK")
     s["dates"] = slots
     save(s)
 
