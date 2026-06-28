@@ -80,9 +80,9 @@ def save(d):
     json.dump(d, open(STATE, "w"))
 
 def main():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(QATAR_TZ)
     hour = now.hour
-    time_str = now.strftime("%d %b %Y %H:%M UTC")
+    time_str = now.strftime("%d %b %Y %H:%M AST")
     slots = get_all_slots()
     if slots is None:
         return
@@ -98,7 +98,7 @@ def main():
         s["found"] = True
         s["found_time"] = time_str
     if hour != s["hour"]:
-        hl = now.strftime("%d %b %Y %H:00 UTC")
+        hl = now.strftime("%d %b %Y %H:00 AST")
         if s["found"]:
             out = "Hourly Summary " + hl + "\n\nSLOT FOUND at " + str(s["found_time"]) + "!\nChecks: " + str(s["checks"]) + "\nRunning OK"
         elif slots:
