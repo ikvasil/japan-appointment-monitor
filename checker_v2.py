@@ -97,6 +97,9 @@ def main():
         telegram(msg)
         s["found"] = True
         s["found_time"] = time_str
+        with open("/home/japan_monitor/slot_history.log", "a") as log:
+            for d in new:
+                log.write(time_str + " | Slot found: " + d + "\n")
     if hour != s["hour"]:
         hl = now.strftime("%d %b %Y %H:00 AST")
         if s["found"]:
